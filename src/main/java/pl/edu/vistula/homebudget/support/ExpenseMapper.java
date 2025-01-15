@@ -16,8 +16,8 @@ public class ExpenseMapper {
     public ExpenseResponse toExpenseResponse(Expense expense) {
         return new ExpenseResponse(expense.getId(), expense.getDescription(), expense.getAmount(), expense.getDate());
     }
-    public Expense toExpense(Expense expense, UpdateExpenseRequest updateExpenseResponse) {
-        return new Expense(updateExpenseResponse.getId(), updateExpenseResponse.getDescription(), updateExpenseResponse.getAmount(), updateExpenseResponse.getDate(), updateExpenseResponse.getCategory());
+    public Expense toExpense(Expense expense, UpdateExpenseRequest updateExpenseRequest) {
+        return new Expense(updateExpenseRequest.getId(), updateExpenseRequest.getDescription(), updateExpenseRequest.getAmount(), updateExpenseRequest.getDate(), updateExpenseRequest.getCategory());
     }
 
 }

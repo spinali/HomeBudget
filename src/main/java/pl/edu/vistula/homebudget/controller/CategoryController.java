@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.vistula.homebudget.api.request.CategoryRequest;
+import pl.edu.vistula.homebudget.api.request.UpdateCategoryRequest;
 import pl.edu.vistula.homebudget.api.response.CategoryResponse;
 import pl.edu.vistula.homebudget.service.CategoryService;
 
@@ -42,5 +43,11 @@ public class CategoryController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @PutMapping("/{id}")
+    @Operation(summary = "update category by id")
+    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody UpdateCategoryRequest updateCategoryRequest) {
+        CategoryResponse categoryResponse = categoryService.update(id, updateCategoryRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(categoryResponse);
     }
 }
