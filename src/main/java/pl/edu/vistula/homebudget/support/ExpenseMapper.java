@@ -11,13 +11,13 @@ import pl.edu.vistula.homebudget.model.Expense;
 @Component
 public class ExpenseMapper {
     public Expense toExpense(ExpenseRequest expenseRequest) {
-        return new Expense(expenseRequest.getDescription(), expenseRequest.getAmount(), expenseRequest.getDate());
+        return new Expense(expenseRequest.getDescription(), expenseRequest.getAmount(), expenseRequest.getDate(), expenseRequest.getCategory());
     }
     public ExpenseResponse toExpenseResponse(Expense expense) {
         return new ExpenseResponse(expense.getId(), expense.getDescription(), expense.getAmount(), expense.getDate());
     }
     public Expense toExpense(Expense expense, UpdateExpenseRequest updateExpenseResponse) {
-        return new Expense(updateExpenseResponse.getId(), updateExpenseResponse.getDescription(), updateExpenseResponse.getAmount(), updateExpenseResponse.getDate());
+        return new Expense(updateExpenseResponse.getId(), updateExpenseResponse.getDescription(), updateExpenseResponse.getAmount(), updateExpenseResponse.getDate(), updateExpenseResponse.getCategory());
     }
 
 }

@@ -25,10 +25,14 @@ public class Expense {
     private BigDecimal amount;
     @NotNull
     private LocalDate date;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    public Expense(String description, BigDecimal amount, LocalDate date) {
+    public Expense(String description, BigDecimal amount, LocalDate date, Category category) {
         this.description = description;
         this.amount = amount;
         this.date = date;
+        this.category = category;
     }
 }

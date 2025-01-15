@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.edu.vistula.homebudget.model.Category;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,10 +22,12 @@ public class ExpenseRequest {
     private String description;
     private BigDecimal amount;
     private LocalDate date;
+    private Category category;
     @JsonCreator
-    public ExpenseRequest(Long id, String description, BigDecimal amount, LocalDate date) {
+    public ExpenseRequest(Long id, String description, BigDecimal amount, LocalDate date, Category category) {
         this.description = description;
         this.amount = amount;
         this.date = date;
+        this.category = category;
     }
 }
