@@ -8,6 +8,7 @@ import pl.edu.vistula.homebudget.model.Category;
 import pl.edu.vistula.homebudget.repository.CategoryRepository;
 import pl.edu.vistula.homebudget.repository.ExpenseRepository;
 import pl.edu.vistula.homebudget.support.CategoryMapper;
+import pl.edu.vistula.homebudget.support.exception.CategoryExceptionSupplier;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(category);
     }
     public CategoryResponse find(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(RuntimeException::new);//to change
+        Category category = categoryRepository.findById(id).orElseThrow(CategoryExceptionSupplier.categoryNotFound(id));//to change
         return categoryMapper.toCategoryResponse(category);
     }
     public List<CategoryResponse> findAll() {
@@ -34,7 +35,7 @@ public class CategoryService {
         return categoryRepository.findAll().stream().map(categoryMapper::toCategoryResponse).collect(Collectors.toList());
     }
     public void delete(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(RuntimeException::new);
+        Category category = categoryRepository.findById(id).orElseThrow(CategoryExceptionSupplier.categoryNotFound(id));
         categoryRepository.deleteById(category.getId());
     }
 }
