@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menedżer Wydatków</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .add-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        .upload-form {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Menedżer Wydatków</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Opis</th>
+        <th>Kwota</th>
+        <th>Data</th>
+        <th>Akcje</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="expense : ${expenses}">
+        <td th:text="${expense.description}"></td>
+        <td th:text="${expense.amount} + ' PLN'"></td>
+        <td th:text="${expense.date}"></td>
+        <td>
+            <a th:href="@{/view/expenses/edit/{id}(id=${expense.id})}">Edytuj</a>
+            <form th:action="@{/view/expenses/delete/{id}(id=${expense.id})}" method="post">
+                <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć?')">Usuń</button>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <th>Suma</th>
+    </tr>
+    <tr>
+        <td><span th:text="${totalExpenses}"></span> </td>
+    </tr>
+    </tbody>
+</table>
+<a href="/view/expenses/add" class="add-button">Dodaj Wydatek</a>
+
+<div class="upload-form">
+    <h2>Prześlij historię transakcji z banku</h2>
+    <form th:action="@{/view/expenses/import}" method="post" enctype="multipart/form-data">
+        <label for="file">Wybierz plik CSV:</label>
+        <input type="file" name="file" id="file" accept=".csv" required>
+        <button type="submit">Importuj</button>
+    </form>
+</div>
+</body>
+</html>
