@@ -54,6 +54,7 @@
     <tr>
         <th>Opis</th>
         <th>Kwota</th>
+        <th>Kategoria</th>
         <th>Data</th>
         <th>Akcje</th>
     </tr>
@@ -62,6 +63,7 @@
     <tr th:each="expense : ${expenses}">
         <td th:text="${expense.description}"></td>
         <td th:text="${expense.amount} + ' PLN'"></td>
+        <td th:text="${expense.categoryName}"></td>
         <td th:text="${expense.date}"></td>
         <td>
             <a th:href="@{/view/expenses/edit/{id}(id=${expense.id})}">Edytuj</a>

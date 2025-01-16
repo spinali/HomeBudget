@@ -10,11 +10,10 @@ import java.time.LocalDate;
 @Data
 public class UpdateExpenseRequest extends ExpenseRequest {
     private final Long id;
-    //private final LocalDate date;
     @JsonCreator
-    public UpdateExpenseRequest(String description, BigDecimal amount,Long id) {
-        super();
+    public UpdateExpenseRequest(Long id, String description, BigDecimal amount, LocalDate date, Long categoryId) {
+        super(description, amount, date, categoryId);
         this.id = id;
-        //this.date = date;
     }
+
 }

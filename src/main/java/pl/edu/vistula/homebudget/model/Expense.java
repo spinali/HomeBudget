@@ -35,4 +35,5 @@ public class Expense {
         this.date = date;
         this.category = category;
     }
+
 }
