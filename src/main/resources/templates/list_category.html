@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menedżer Wydatków</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .add-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        .upload-form {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Menedżer Wydatków</h1>
+<h2>Kategorie</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Nazwa</th>
+        <th>Akcje</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="category : ${categories}">
+        <td th:text="${category.name}"></td>
+        <td>
+            <a th:href="@{/view/categories/edit/{id}(id=${category.id})}">Edytuj</a>
+            <form th:action="@{/view/categories/delete/{id}(id=${category.id})}" method="post">
+                <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć?')">Usuń</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<a href="/view/categories/add" class="add-button">Dodaj Kategorię</a>
+
+</body>
+</html>

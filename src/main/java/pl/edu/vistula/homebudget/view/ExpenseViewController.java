@@ -58,11 +58,6 @@ public class ExpenseViewController {
         model.addAttribute("expense", expenseResponse);
         return "edit-expense";
     }
-//    @PostMapping("/edit/{id}")
-//    public String update(@ModelAttribute UpdateExpenseRequest updateExpenseRequest, @PathVariable Long id) {
-//        expenseService.update(id, updateExpenseRequest);
-//        return "redirect:/view/expenses";
-//    }
     @PostMapping("/edit/{id}")
     public String update(@ModelAttribute UpdateExpenseRequest updateExpenseRequest, @PathVariable Long id) {
         if (updateExpenseRequest.getCategoryId() == null) {
