@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Expense Statistics</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+<h1>Expense Statistics</h1>
+
+<!-- Tabela z danymi -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Category</th>
+        <th>Total (PLN)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="stat : ${statistics}">
+        <td th:text="${stat.categoryName}"></td>
+        <td th:text="${stat.total}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Kontener na wykres -->
+<div id="chart_div" style="width: 100%; height: 500px;"></div>
+
+<!-- Skrypt do rysowania wykresu -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Przekazanie danych z Thymeleaf do JavaScript
+    const statistics = /*[[${statistics}]]*/ [];
+
+    // Inicjalizacja Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        // Przygotowanie danych dla wykresu
+        const chartData = [
+            ['Category', 'Total (PLN)'], // Nagłówki kolumn
+        ];
+
+        // Dodanie danych do tabeli
+        statistics.forEach(stat => {
+            chartData.push([stat.categoryName, stat.total]);
+        });
+
+        // Utworzenie tabeli danych
+        const data = google.visualization.arrayToDataTable(chartData);
+
+        // Opcje wykresu
+        const options = {
+            title: 'Expense Breakdown by Category',
+            pieHole: 0.4
+        };
+
+        // Utworzenie i narysowanie wykresu
+        const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

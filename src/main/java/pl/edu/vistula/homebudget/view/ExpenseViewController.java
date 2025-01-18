@@ -1,6 +1,7 @@
 package pl.edu.vistula.homebudget.view;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,10 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.edu.vistula.homebudget.api.request.ExpenseRequest;
 import pl.edu.vistula.homebudget.api.request.UpdateExpenseRequest;
 import pl.edu.vistula.homebudget.api.response.ExpenseResponse;
-import pl.edu.vistula.homebudget.model.Expense;
+import pl.edu.vistula.homebudget.dto.CategoryStatisticsDto;
 import pl.edu.vistula.homebudget.service.CategoryService;
 import pl.edu.vistula.homebudget.service.ExpenseService;
-import pl.edu.vistula.homebudget.support.ExpenseMapper;
 
 import java.util.List;
 
@@ -65,6 +65,12 @@ public class ExpenseViewController {
         }
         expenseService.update(id, updateExpenseRequest);  // Przesłanie obiektu z `id`, `description`, `amount`, `date`, `categoryId`
         return "redirect:/view/expenses";
+    }
+    @GetMapping("/statistics")
+    public String getStatistics(Model model) {
+        List<CategoryStatisticsDto> statistics = expenseService.getCategoryStatistics();
+        model.addAttribute("statistics", statistics);
+        return "statistics";
     }
 
     @GetMapping("/import")
