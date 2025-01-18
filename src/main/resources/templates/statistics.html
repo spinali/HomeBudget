@@ -5,6 +5,42 @@
     <title>Expense Statistics</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
+<style>
+    /* Styling for the page */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    h1 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+    }
+    .add-button, .toggle-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .add-button:hover, .toggle-button:hover {
+        background-color: #218838;
+    }
+</style>
 <body>
 <h1>Expense Statistics</h1>
 
@@ -23,45 +59,62 @@
     </tr>
     </tbody>
 </table>
+<a href="/view/expenses" class="add-button">Lista wydatków</a>
+<button class="toggle-button" id="toggle-chart-button">Switch to Pie Chart</button>
 
-<!-- Kontener na wykres -->
+<!-- Container for the chart -->
 <div id="chart_div" style="width: 100%; height: 500px;"></div>
 
-<!-- Skrypt do rysowania wykresu -->
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    // Przekazanie danych z Thymeleaf do JavaScript
+    // Passing data from Thymeleaf to JavaScript
     const statistics = /*[[${statistics}]]*/ [];
 
-    // Inicjalizacja Google Charts
-    google.charts.load('current', {'packages':['corechart']});
+    // Load Google Charts
+    google.charts.load('current', {'packages': ['corechart', 'bar']});
     google.charts.setOnLoadCallback(drawChart);
 
+    let currentChartType = 'column'; // Default chart type
+
     function drawChart() {
-        // Przygotowanie danych dla wykresu
         const chartData = [
-            ['Category', 'Total (PLN)'], // Nagłówki kolumn
+            ['Category', 'Total (PLN)'], // Column headers
         ];
 
-        // Dodanie danych do tabeli
         statistics.forEach(stat => {
-            chartData.push([stat.categoryName, stat.total]);
+            chartData.push([stat.categoryName, parseFloat(stat.total)]);
         });
 
-        // Utworzenie tabeli danych
         const data = google.visualization.arrayToDataTable(chartData);
 
-        // Opcje wykresu
         const options = {
             title: 'Expense Breakdown by Category',
-            pieHole: 0.4
+            chartArea: {width: '70%', height: '70%'},
+            hAxis: { title: 'Category', minValue: 0 },
+            vAxis: { title: 'Total (PLN)', minValue: 0 },
         };
 
-        // Utworzenie i narysowanie wykresu
-        const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        const chartDiv = document.getElementById('chart_div');
+        let chart;
+
+        if (currentChartType === 'pie') {
+            options.pieHole = 0.4;
+            chart = new google.visualization.PieChart(chartDiv);
+        } else {
+            chart = new google.visualization.ColumnChart(chartDiv);
+        }
+
         chart.draw(data, options);
     }
+
+    document.getElementById('toggle-chart-button').addEventListener('click', () => {
+        // Toggle the chart type
+        currentChartType = currentChartType === 'pie' ? 'column' : 'pie';
+        const buttonText = currentChartType === 'pie' ? 'Switch to Column Chart' : 'Switch to Pie Chart';
+        document.getElementById('toggle-chart-button').innerText = buttonText;
+        drawChart();
+    });
 
     /*]]>*/
 </script>
