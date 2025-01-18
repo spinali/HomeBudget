@@ -3,17 +3,16 @@ package pl.edu.vistula.homebudget.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.vistula.homebudget.api.request.ExpenseRequest;
 import pl.edu.vistula.homebudget.api.request.UpdateExpenseRequest;
 import pl.edu.vistula.homebudget.api.response.ExpenseResponse;
-import pl.edu.vistula.homebudget.model.Expense;
 import pl.edu.vistula.homebudget.service.ExpenseService;
+import pl.edu.vistula.homebudget.dto.CategoryStatisticsDto;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/expenses/")
 public class ExpenseController {
     private final ExpenseService expenseService;
@@ -50,5 +49,10 @@ public class ExpenseController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         expenseService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @GetMapping("/statistics")
+    @Operation(summary = "get statistics")
+    public List<CategoryStatisticsDto> getStatistics() {
+        return expenseService.getCategoryStatistics();
     }
 }
