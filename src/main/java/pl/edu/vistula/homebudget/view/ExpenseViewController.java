@@ -10,9 +10,13 @@ import pl.edu.vistula.homebudget.api.request.ExpenseRequest;
 import pl.edu.vistula.homebudget.api.request.UpdateExpenseRequest;
 import pl.edu.vistula.homebudget.api.response.ExpenseResponse;
 import pl.edu.vistula.homebudget.dto.CategoryStatisticsDto;
+import pl.edu.vistula.homebudget.service.BudgetService;
 import pl.edu.vistula.homebudget.service.CategoryService;
 import pl.edu.vistula.homebudget.service.ExpenseService;
+import pl.edu.vistula.homebudget.support.BudgetMapper;
+import pl.edu.vistula.homebudget.support.ExpenseMapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -20,16 +24,19 @@ import java.util.List;
 public class ExpenseViewController {
     private final ExpenseService expenseService;
     private final CategoryService categoryService;
+    private final BudgetService budgetService;
 
-    public ExpenseViewController(ExpenseService expenseService, CategoryService categoryService) {
+    public ExpenseViewController(ExpenseService expenseService, CategoryService categoryService, BudgetService budgetService) {
         this.expenseService = expenseService;
         this.categoryService = categoryService;
+        this.budgetService=budgetService;
     }
 
     @GetMapping
     public String expenses(Model model) {
         model.addAttribute("expenses", expenseService.findAll());
         model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("budget", budgetService.find(1L));
         model.addAttribute("totalExpenses", expenseService.getTotalExpenses());
         return "index";
     }
@@ -43,6 +50,9 @@ public class ExpenseViewController {
 
     @PostMapping("/add")
     public String create(@ModelAttribute ExpenseRequest expenseRequest) {
+        if(expenseRequest.getDate()==null) {
+            expenseRequest.setDate(LocalDate.now());
+        }
         expenseService.create(expenseRequest);
         return "redirect:/view/expenses";
     }
