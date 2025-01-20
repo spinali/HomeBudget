@@ -18,6 +18,7 @@ import pl.edu.vistula.homebudget.support.ExpenseMapper;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/view/expenses")
@@ -83,16 +84,44 @@ public class ExpenseViewController {
         return "statistics";
     }
 
+//    @GetMapping("/import")
+//    public String showImportPage() {
+//        return "index";  // Widok z formularzem
+//    }
+//    @PostMapping("/import")
+//    public String importExpenses(@RequestParam("file") MultipartFile file) {
+//        if (file.isEmpty()) {
+//            throw new IllegalArgumentException("Plik CSV nie został przesłany!");
+//        }
+//        expenseService.importFromCsv(file);  // Metoda importująca plik
+//        return "redirect:/view/expenses";  // Przekierowanie po zakończeniu importu
+//    }
     @GetMapping("/import")
-    public String showImportPage() {
-        return "index";  // Widok z formularzem
+    public String showImportForm(Model model) {
+        return "import-expenses";
     }
-    @PostMapping("/import")
-    public String importExpenses(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("Plik CSV nie został przesłany!");
+    @PostMapping("/upload")
+    public String uploadCsv(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            List<String> headers = expenseService.getCsvHeaders(file);
+            model.addAttribute("headers", headers); // Przekazujemy nagłówki do szablonu
+            return "import-expenses"; // Powrót do strony importu z danymi
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to upload CSV file: " + e.getMessage());
+            return "import-expenses"; // Powrót do strony importu z błędem
         }
-        expenseService.importFromCsv(file);  // Metoda importująca plik
-        return "redirect:/view/expenses";  // Przekierowanie po zakończeniu importu
+    }
+
+    // Endpoint do potwierdzania importu z mapowaniem nagłówków
+    @PostMapping("/confirm-import")
+    public String confirmImport(@RequestParam Map<String, String> headerMapping, Model model) {
+        try {
+            expenseService.importCsv(headerMapping);
+            model.addAttribute("message", "Import successful!");
+            return "import-expenses"; // Powrót do strony importu z komunikatem
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to import CSV: " + e.getMessage());
+            return "import-expenses"; // Powrót do strony importu z błędem
+        }
     }
 }

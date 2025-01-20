@@ -1,5 +1,8 @@
 package pl.edu.vistula.homebudget.service;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pl.edu.vistula.homebudget.api.request.ExpenseRequest;
@@ -14,8 +17,16 @@ import pl.edu.vistula.homebudget.support.ExpenseExceptionSupplier;
 import pl.edu.vistula.homebudget.support.ExpenseMapper;
 import pl.edu.vistula.homebudget.support.exception.CategoryExceptionSupplier;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +34,8 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
     private final CategoryRepository categoryRepository;
+    private List<CSVRecord> records;
+    private List<String> headers;
 
     public ExpenseService(ExpenseRepository expenseRepository, ExpenseMapper expenseMapper, CategoryRepository categoryRepository) {
         this.expenseRepository = expenseRepository;
@@ -64,6 +77,108 @@ public class ExpenseService {
                 .map(stat -> new CategoryStatisticsDto(stat.getCategoryName(), stat.getTotal()))
                 .collect(Collectors.toList());
     }
-    public void importFromCsv(MultipartFile file) {
-       }
+    public List<String> getCsvHeaders(MultipartFile file) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            CSVParser csvParser = CSVFormat.DEFAULT.builder()
+                    .setDelimiter(";")
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .setIgnoreHeaderCase(true)
+                    .setTrim(true)
+                    .build()
+                    .parse(reader);
+
+            this.headers = new ArrayList<>(csvParser.getHeaderNames());
+            this.records = csvParser.getRecords();
+
+            return headers;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse CSV file", e);
+        }
     }
+    public void importCsv(Map<String, String> headers) {
+        String categoryName = "import";
+        Category category = categoryRepository.findByName(categoryName)
+                .orElseGet(() -> {
+                    Category newCategory = new Category(categoryName);
+                    return categoryRepository.save(newCategory);
+                });
+
+        if (records == null || headers == null) {
+            throw new RuntimeException("No CSV file uploaded");
+        }
+
+        DateTimeFormatter csvDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        List<Expense> expenses = new ArrayList<>();
+
+        for (CSVRecord record : records) {
+            ExpenseRequest expenseRequest = new ExpenseRequest();
+            boolean isValid = true; // Flaga do sprawdzenia poprawności rekordu
+
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                String header = entry.getKey();
+                String fieldName = entry.getValue();
+
+                switch (fieldName) {
+                    case "description":
+                        expenseRequest.setDescription(record.get(header));
+                        break;
+                    case "amount":
+                        try {
+                            String amountValue = cleanNumber(record.get(header));
+                            BigDecimal amount = new BigDecimal(amountValue);
+
+                            if (amount.compareTo(BigDecimal.ZERO) >= 0) {
+                                System.err.println("Skipping record with non-negative amount: " + record.get(header));
+                                isValid = false; // Oznacz rekord jako niepoprawny
+                            } else {
+                                expenseRequest.setAmount(amount.negate());
+                            }
+                        } catch (NumberFormatException e) {
+                            System.err.println("Invalid number format for field 'amount': " + record.get(header));
+                            isValid = false;
+                        }
+                        break;
+                    case "date":
+                        try {
+                            expenseRequest.setDate(LocalDate.parse(record.get(header), csvDateFormatter));
+                        } catch (Exception e) {
+                            System.err.println("Invalid date format for field 'date': " + record.get(header));
+                            isValid = false;
+                        }
+                        break;
+                    default:
+                        System.out.println("Ignoring unknown field: " + fieldName);
+                        break;
+                }
+            }
+
+            if (isValid) {
+                Expense expense = expenseMapper.toExpense(expenseRequest, category);
+                expenses.add(expense);
+            }
+        }
+
+        expenseRepository.saveAll(expenses);
+
+        this.records = null;
+        this.headers = null;
+    }
+    private String cleanNumber(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return "0";
+        }
+
+        String cleanedValue = value.replaceAll("[^\\d.,-]", "");
+
+        cleanedValue = cleanedValue.replace(",", ".");
+
+        if (!cleanedValue.matches("-?\\d+(\\.\\d+)?")) {
+            throw new NumberFormatException("Invalid number format: " + value);
+        }
+
+        return cleanedValue;
+    }
+}
+
