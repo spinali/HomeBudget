@@ -90,7 +90,6 @@ public class ExpenseService {
 
             this.headers = new ArrayList<>(csvParser.getHeaderNames());
             this.records = csvParser.getRecords();
-
             return headers;
 
         } catch (IOException e) {
@@ -98,13 +97,6 @@ public class ExpenseService {
         }
     }
     public void importCsv(Map<String, String> headers) {
-        String categoryName = "import";
-        Category category = categoryRepository.findByName(categoryName)
-                .orElseGet(() -> {
-                    Category newCategory = new Category(categoryName);
-                    return categoryRepository.save(newCategory);
-                });
-
         if (records == null || headers == null) {
             throw new RuntimeException("No CSV file uploaded");
         }
@@ -114,7 +106,7 @@ public class ExpenseService {
 
         for (CSVRecord record : records) {
             ExpenseRequest expenseRequest = new ExpenseRequest();
-            boolean isValid = true; // Flaga do sprawdzenia poprawności rekordu
+            boolean isValid = true;
 
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 String header = entry.getKey();
@@ -131,7 +123,7 @@ public class ExpenseService {
 
                             if (amount.compareTo(BigDecimal.ZERO) >= 0) {
                                 System.err.println("Skipping record with non-negative amount: " + record.get(header));
-                                isValid = false; // Oznacz rekord jako niepoprawny
+                                isValid = false;
                             } else {
                                 expenseRequest.setAmount(amount.negate());
                             }
@@ -139,6 +131,15 @@ public class ExpenseService {
                             System.err.println("Invalid number format for field 'amount': " + record.get(header));
                             isValid = false;
                         }
+                        break;
+                    case "category":
+                        String categoryName = record.get(header);
+                        Category category = categoryRepository.findByName(categoryName)
+                                .orElseGet(() -> {
+                                    Category newCategory = new Category(categoryName);
+                                    return categoryRepository.save(newCategory);
+                                });
+                        expenseRequest.setCategoryId(category.getId());
                         break;
                     case "date":
                         try {
@@ -155,7 +156,8 @@ public class ExpenseService {
             }
 
             if (isValid) {
-                Expense expense = expenseMapper.toExpense(expenseRequest, category);
+                Expense expense = expenseMapper.toExpense(expenseRequest, categoryRepository.findById(expenseRequest.getCategoryId())
+                        .orElseThrow(() -> new RuntimeException("Category not found")));
                 expenses.add(expense);
             }
         }
