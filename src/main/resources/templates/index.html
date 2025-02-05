@@ -2,91 +2,129 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Menedżer Wydatków</title>
+    <title>Budget Manager</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
         h1 {
             color: #333;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         th, td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
         }
+
         th {
             background-color: #f4f4f4;
         }
-        a {
-            color: #007bff;
-            text-decoration: none;
+
+        .action-buttons {
+            display: block;
+            position: sticky;
+            bottom: 0;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+            text-align: center;
+            background-color: grey;
         }
-        a:hover {
-            text-decoration: underline;
-        }
-        .add-button {
-            display: inline-block;
+
+        .add-button, button.add-button {
             padding: 10px 20px;
             background-color: #28a745;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
         }
-        .add-button:hover {
+
+        .add-button:hover, button.add-button:hover {
             background-color: #218838;
         }
-        .upload-form {
-            margin-top: 20px;
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 10px;
         }
     </style>
+    <script>
+        function toggleSelection(source) {
+            const checkboxes = document.querySelectorAll('input[name="ids"]');
+            for (const checkbox of checkboxes) {
+                checkbox.checked = source.checked;
+            }
+        }
+    </script>
 </head>
 <body>
-<h1>Menedżer Wydatków</h1>
-<h2>Budget: <span th:text="${budget.amount}"></span>&nbspPLN</h2>
-<h2>Pozostało: <span th:text="${budget.amount}-${totalExpenses}"></span>&nbspPLN</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Opis</th>
-        <th>Kwota</th>
-        <th>Kategoria</th>
-        <th>Data</th>
-        <th>Akcje</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="expense : ${expenses}">
-        <td th:text="${expense.description}"></td>
-        <td th:text="${expense.amount} + ' PLN'"></td>
-        <td th:text="${expense.categoryName}"></td>
-        <td th:text="${expense.date}"></td>
-        <td>
-            <a class="back-link" th:href="@{/view/expenses/edit/{id}(id=${expense.id})}">Edytuj</a>
-            <form th:action="@{/view/expenses/delete/{id}(id=${expense.id})}" method="post">
-                <button class="back-link" type="submit" onclick="return confirm('Czy na pewno chcesz usunąć?')">Usuń</button>
-            </form>
-        </td>
-    </tr>
-    <tr>
-        <th>Suma</th>
-    </tr>
-    <tr>
-        <td><span th:text="${totalExpenses}"></span> </td>
-    </tr>
-    </tbody>
-</table>
-<a href="/view/budget/edit" class="add-button">Edytuj Budget</a>
-<a href="/view/expenses/add" class="add-button">Dodaj Wydatek</a>
-<a href="/view/categories" class="add-button">Kategorie</a>
-<a href="/view/expenses/statistics" class="add-button">Statystyki</a>
-<a href="/view/expenses/import" class="add-button">Importuj</a>
+<div th:if="${error}" style="background-color: #f8d7da; padding: 15px; margin-bottom: 20px; color: #721c24;">
+    <strong th:text="${error}"></strong>
+</div>
+<h1>Budget Manager</h1>
+<h2>Budget amount: <span th:text="${budget.amount}"></span></h2>
+<h2>Remaining: <span th:text="${budget.amount}-${totalExpenses}"></span></h2>
 
+<form th:action="@{/view/expenses/delete-multiple}" method="post">
+    <table>
+        <thead>
+        <tr>
+            <th><input type="checkbox" onclick="toggleSelection(this)"></th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="expense : ${expenses}" id="check">
+            <td><input type="checkbox" name="ids" th:value="${expense.id}"></td>
+            <td th:text="${expense.description}"></td>
+            <td th:text="${expense.amount}"></td>
+            <td th:text="${expense.categoryName}"></td>
+            <td th:text="${expense.date}"></td>
+            <td>
+                <a class="add-button" th:href="@{/view/expenses/edit/{id}(id=${expense.id})}">Edit</a>
+                <a class="add-button" th:href="@{/view/expenses/delete/{id}(id=${expense.id})}"
+                   onclick="return confirm('Are you sure you want to delete it?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="action-buttons">
+        <button type="submit" class="add-button" onclick="return validateSelection()">Delete Selected</button>
+        <a href="/view/budget/edit" class="add-button">Edit Budget</a>
+        <a href="/view/expenses/add" class="add-button">Add Expense</a>
+        <a href="/view/categories" class="add-button">Categories</a>
+        <a href="/view/expenses/statistics" class="add-button">Statistics</a>
+        <a href="/view/expenses/import" class="add-button">Import from file</a>
+    </div>
+</form>
+<script>
+    function validateSelection() {
+        const checkboxes = document.querySelectorAll('input[name="ids"]:checked');
+        if (checkboxes.length === 0) {
+            alert('You must select at least one expense to delete.');
+            return false;
+        }
+        return true;
+    }
+</script>
 </body>
 </html>

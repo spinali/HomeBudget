@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Edytuj Budżet</title>
+    <title>Edit Budget</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,12 +50,12 @@
     </style>
 </head>
 <body>
-<h1>Edytuj Budżet</h1>
+<h1>Edit Budget</h1>
 <form th:action="@{/view/budget/edit}" method="post" th:object="${budget}">
-    <label for="amount">Kwota:</label>
+    <label for="amount">Amount</label>
     <input type="number" id="amount" th:field="*{amount}" step="0.01" min="0.0" required>
-    <button type="submit">Zapisz</button>
+    <button type="submit">Save</button>
 </form>
-<a href="/view/expenses" class="back-link">Powrót do listy wydatków</a>
+<a href="/view/expenses" class="back-link">Back</a>
 </body>
 </html>

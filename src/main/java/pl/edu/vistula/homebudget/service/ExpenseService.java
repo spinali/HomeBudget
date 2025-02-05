@@ -13,7 +13,7 @@ import pl.edu.vistula.homebudget.model.Category;
 import pl.edu.vistula.homebudget.model.Expense;
 import pl.edu.vistula.homebudget.repository.CategoryRepository;
 import pl.edu.vistula.homebudget.repository.ExpenseRepository;
-import pl.edu.vistula.homebudget.support.ExpenseExceptionSupplier;
+import pl.edu.vistula.homebudget.support.exception.ExpenseExceptionSupplier;
 import pl.edu.vistula.homebudget.support.ExpenseMapper;
 import pl.edu.vistula.homebudget.support.exception.CategoryExceptionSupplier;
 
@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -68,6 +67,10 @@ public class ExpenseService {
     public void delete(Long id) {
         Expense expense = expenseRepository.findById(id).orElseThrow(ExpenseExceptionSupplier.expenseNotFound(id));
         expenseRepository.deleteById(expense.getId());
+    }
+    public void delete(List<Long> ids) {
+        List<Expense> expenses = expenseRepository.findAllById(ids);
+        expenseRepository.deleteAll(expenses);
     }
     public BigDecimal getTotalExpenses() {
         return expenseRepository.findAll().stream().map(Expense::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -182,5 +185,7 @@ public class ExpenseService {
 
         return cleanedValue;
     }
+
+
 }
 

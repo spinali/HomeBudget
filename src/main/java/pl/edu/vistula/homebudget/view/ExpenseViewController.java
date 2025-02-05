@@ -57,7 +57,12 @@ public class ExpenseViewController {
         expenseService.create(expenseRequest);
         return "redirect:/view/expenses";
     }
-    @PostMapping("/delete/{id}")
+    @PostMapping("/delete-multiple")
+    public String deleteMultiple(@RequestParam List<Long> ids) {
+        expenseService.delete(ids);
+        return "redirect:/view/expenses";
+    }
+    @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         expenseService.delete(id);
         return "redirect:/view/expenses";

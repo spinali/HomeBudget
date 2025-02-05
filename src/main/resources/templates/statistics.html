@@ -49,7 +49,7 @@
     <thead>
     <tr>
         <th>Category</th>
-        <th>Total (PLN)</th>
+        <th>Total</th>
     </tr>
     </thead>
     <tbody>
@@ -59,7 +59,7 @@
     </tr>
     </tbody>
 </table>
-<a href="/view/expenses" class="add-button">Lista wydatków</a>
+<a href="/view/expenses" class="add-button">Back</a>
 <a class="toggle-button" id="toggle-chart-button">Switch to Pie Chart</a>
 
 <!-- Container for the chart -->
@@ -79,7 +79,7 @@
 
     function drawChart() {
         const chartData = [
-            ['Category', 'Total (PLN)'], // Column headers
+            ['Category', 'Total'], // Column headers
         ];
 
         statistics.forEach(stat => {
@@ -92,7 +92,7 @@
             title: 'Expense Breakdown by Category',
             chartArea: {width: '70%', height: '70%'},
             hAxis: { title: 'Category', minValue: 0 },
-            vAxis: { title: 'Total (PLN)', minValue: 0 },
+            vAxis: { title: 'Total', minValue: 0 },
         };
 
         const chartDiv = document.getElementById('chart_div');

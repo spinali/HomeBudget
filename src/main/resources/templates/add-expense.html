@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Dodaj Wydatek</title>
+    <title>Add expense</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,25 +52,25 @@
     </style>
 </head>
 <body>
-<h1>Dodaj Wydatek</h1>
+<h1>Add expense</h1>
 <form th:action="@{/view/expenses/add}" th:object="${expense}" method="post">
-    <label for="description">Opis:</label>
+    <label for="description">Description:</label>
     <input type="text" id="description" th:field="*{description}" required>
 
-    <label for="amount">Kwota (PLN):</label>
+    <label for="amount">Amount:</label>
     <input type="number" step="0.01" id="amount" th:field="*{amount}" required>
 
-    <label for="category">Kategoria:</label>
+    <label for="category">Category:</label>
     <select id="category" th:field="*{categoryId}">
         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
     </select>
 
 
-    <label for="date">Data:</label>
+    <label for="date">Date:</label>
     <input type="date" id="date" th:field="*{date}">
 
-    <button type="submit">Dodaj</button>
+    <button type="submit">Add</button>
 </form>
-<a href="/view/expenses" class="back-link">Powrót do listy</a>
+<a href="/view/expenses" class="back-link">Back</a>
 </body>
 </html>

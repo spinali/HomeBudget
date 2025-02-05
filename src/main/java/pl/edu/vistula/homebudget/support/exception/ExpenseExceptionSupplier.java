@@ -1,6 +1,4 @@
-package pl.edu.vistula.homebudget.support;
-
-import pl.edu.vistula.homebudget.support.exception.ExpenseNotFoundException;
+package pl.edu.vistula.homebudget.support.exception;
 
 import java.util.function.Supplier;
 
