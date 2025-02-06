@@ -170,7 +170,9 @@ public class ExpenseService {
         this.records = null;
         this.headers = null;
     }
-    private String cleanNumber(String value) {
+
+
+        private String cleanNumber(String value) {
         if (value == null || value.trim().isEmpty()) {
             return "0";
         }
