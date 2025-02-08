@@ -99,8 +99,8 @@ public class ExpenseService {
             throw new RuntimeException("Failed to parse CSV file", e);
         }
     }
-    public void importCsv(Map<String, String> headers) {
-        if (records == null || headers == null) {
+    public void importCsv(String descriptionHeader, String amountHeader, String dateHeader, String categoryHeader) {
+        if (records == null) {
             throw new RuntimeException("No CSV file uploaded");
         }
 
@@ -111,51 +111,27 @@ public class ExpenseService {
             ExpenseRequest expenseRequest = new ExpenseRequest();
             boolean isValid = true;
 
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                String header = entry.getKey();
-                String fieldName = entry.getValue();
+            try {
+                // Mapowanie pól
+                expenseRequest.setDescription(record.get(descriptionHeader));
+                String amountValue = cleanNumber(record.get(amountHeader));
+                BigDecimal amount = new BigDecimal(amountValue);
 
-                switch (fieldName) {
-                    case "description":
-                        expenseRequest.setDescription(record.get(header));
-                        break;
-                    case "amount":
-                        try {
-                            String amountValue = cleanNumber(record.get(header));
-                            BigDecimal amount = new BigDecimal(amountValue);
-
-                            if (amount.compareTo(BigDecimal.ZERO) >= 0) {
-                                System.err.println("Skipping record with non-negative amount: " + record.get(header));
-                                isValid = false;
-                            } else {
-                                expenseRequest.setAmount(amount.negate());
-                            }
-                        } catch (NumberFormatException e) {
-                            System.err.println("Invalid number format for field 'amount': " + record.get(header));
-                            isValid = false;
-                        }
-                        break;
-                    case "category":
-                        String categoryName = record.get(header);
-                        Category category = categoryRepository.findByName(categoryName)
-                                .orElseGet(() -> {
-                                    Category newCategory = new Category(categoryName);
-                                    return categoryRepository.save(newCategory);
-                                });
-                        expenseRequest.setCategoryId(category.getId());
-                        break;
-                    case "date":
-                        try {
-                            expenseRequest.setDate(LocalDate.parse(record.get(header), csvDateFormatter));
-                        } catch (Exception e) {
-                            System.err.println("Invalid date format for field 'date': " + record.get(header));
-                            isValid = false;
-                        }
-                        break;
-                    default:
-                        System.out.println("Ignoring unknown field: " + fieldName);
-                        break;
+                if (amount.compareTo(BigDecimal.ZERO) >= 0) {
+                    isValid = false;
+                } else {
+                    expenseRequest.setAmount(amount.negate());
                 }
+
+                expenseRequest.setDate(LocalDate.parse(record.get(dateHeader), csvDateFormatter));
+
+                String categoryName = record.get(categoryHeader);
+                Category category = categoryRepository.findByName(categoryName)
+                        .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
+                expenseRequest.setCategoryId(category.getId());
+
+            } catch (Exception e) {
+                isValid = false;
             }
 
             if (isValid) {
@@ -166,25 +142,17 @@ public class ExpenseService {
         }
 
         expenseRepository.saveAll(expenses);
-
         this.records = null;
-        this.headers = null;
     }
 
-
-        private String cleanNumber(String value) {
+    private String cleanNumber(String value) {
         if (value == null || value.trim().isEmpty()) {
             return "0";
         }
-
-        String cleanedValue = value.replaceAll("[^\\d.,-]", "");
-
-        cleanedValue = cleanedValue.replace(",", ".");
-
+        String cleanedValue = value.replaceAll("[^\\d.,-]", "").replace(",", ".");
         if (!cleanedValue.matches("-?\\d+(\\.\\d+)?")) {
             throw new NumberFormatException("Invalid number format: " + value);
         }
-
         return cleanedValue;
     }
 
