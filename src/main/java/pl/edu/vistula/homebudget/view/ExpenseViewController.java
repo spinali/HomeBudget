@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.edu.vistula.homebudget.api.request.ExpenseRequest;
 import pl.edu.vistula.homebudget.api.request.UpdateExpenseRequest;
 import pl.edu.vistula.homebudget.api.response.ExpenseResponse;
@@ -107,26 +108,26 @@ public class ExpenseViewController {
     }
     @PostMapping("/upload")
     public String uploadCsv(@RequestParam("file") MultipartFile file, Model model) {
-        try {
-            List<String> headers = expenseService.getCsvHeaders(file);
-            model.addAttribute("headers", headers); // Przekazujemy nagłówki do szablonu
-            return "import-expenses"; // Powrót do strony importu z danymi
-        } catch (Exception e) {
-            model.addAttribute("error", "Failed to upload CSV file: " + e.getMessage());
-            return "import-expenses"; // Powrót do strony importu z błędem
-        }
+        List<String> headers = expenseService.getCsvHeaders(file);
+        model.addAttribute("headers", headers);
+        return "import-expenses";
     }
 
-    // Endpoint do potwierdzania importu z mapowaniem nagłówków
     @PostMapping("/confirm-import")
-    public String confirmImport(@RequestParam Map<String, String> headerMapping, Model model) {
+    public String confirmImport(
+            @RequestParam("descriptionHeader") String descriptionHeader,
+            @RequestParam("amountHeader") String amountHeader,
+            @RequestParam("dateHeader") String dateHeader,
+            @RequestParam("categoryHeader") String categoryHeader,
+            RedirectAttributes redirectAttributes) {
+
         try {
-            expenseService.importCsv(headerMapping);
-            model.addAttribute("message", "Import successful!");
-            return "import-expenses"; // Powrót do strony importu z komunikatem
+            expenseService.importCsv(descriptionHeader, amountHeader, dateHeader, categoryHeader);
+            redirectAttributes.addFlashAttribute("message", "Import successful!");
         } catch (Exception e) {
-            model.addAttribute("error", "Failed to import CSV: " + e.getMessage());
-            return "import-expenses"; // Powrót do strony importu z błędem
+            redirectAttributes.addFlashAttribute("error", "Error during import: " + e.getMessage());
         }
+        return "redirect:/view/expenses";
     }
+
 }

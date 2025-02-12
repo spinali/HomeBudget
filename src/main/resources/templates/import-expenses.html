@@ -68,21 +68,42 @@
     <div th:if="${headers}" id="mappingSection">
         <h2>Map Headers to Fields</h2>
         <form th:action="@{/view/expenses/confirm-import}" method="post">
-            <div th:each="header : ${headers}" class="form-group">
-                <label th:text="${header}"></label>
-                <select th:name="${header}">
-                    <option value="">-- Select Field --</option>
-                    <option value="description">Description</option>
-                    <option value="amount">Amount</option>
-                    <option value="date">Date</option>
-                    <option value="category">Category</option>
+            <div class="form-group">
+                <label for="descriptionHeader">Description Column</label>
+                <select id="descriptionHeader" name="descriptionHeader" required>
+                    <option value="">-- Select Header --</option>
+                    <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="amountHeader">Amount Column</label>
+                <select id="amountHeader" name="amountHeader" required>
+                    <option value="">-- Select Header --</option>
+                    <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dateHeader">Date Column</label>
+                <select id="dateHeader" name="dateHeader" required>
+                    <option value="">-- Select Header --</option>
+                    <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="categoryHeader">Category Column</label>
+                <select id="categoryHeader" name="categoryHeader" required>
+                    <option value="">-- Select Header --</option>
+                    <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
+                </select>
+            </div>
+
             <button type="submit">Confirm Import</button>
         </form>
     </div>
     <a href="/view/expenses" class="blank-link">Powrót do listy</a>
-
 </div>
 </body>
 </html>
