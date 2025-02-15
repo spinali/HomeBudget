@@ -1,6 +1,7 @@
 package pl.edu.vistula.homebudget.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class CategoryController {
 
     @PostMapping("/add")
     @Operation(summary = "create new category")
-    public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest categoryRequest) {
         CategoryResponse categoryResponse = categoryService.create(categoryRequest);
         return new ResponseEntity<>(categoryResponse, HttpStatus.CREATED);
     }
@@ -58,7 +59,7 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @Operation(summary = "update category by id")
-    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody UpdateCategoryRequest updateCategoryRequest) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateCategoryRequest updateCategoryRequest) {
         CategoryResponse categoryResponse = categoryService.update(id, updateCategoryRequest);
         return ResponseEntity.status(HttpStatus.OK).body(categoryResponse);
     }

@@ -36,9 +36,6 @@
         button:hover {
             background-color: #218838;
         }
-        .hidden {
-            display: none;
-        }
         .error {
             color: red;
             font-weight: bold;
@@ -52,22 +49,18 @@
 <body>
 <div class="container">
     <h1>Import Expenses from CSV</h1>
-
     <div th:if="${error}" class="error" th:text="${error}"></div>
-
     <div th:if="${message}" class="message" th:text="${message}"></div>
-
-    <form th:action="@{/view/expenses/upload}" method="post" enctype="multipart/form-data">
+    <form th:action="@{/api/expenses/upload}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="csvFile">Upload CSV File</label>
             <input type="file" id="csvFile" name="file" accept=".csv" required>
         </div>
         <button type="submit">Upload CSV</button>
     </form>
-
     <div th:if="${headers}" id="mappingSection">
         <h2>Map Headers to Fields</h2>
-        <form th:action="@{/view/expenses/confirm-import}" method="post">
+        <form th:action="@{/api/expenses/confirm-import}" method="post">
             <div class="form-group">
                 <label for="descriptionHeader">Description Column</label>
                 <select id="descriptionHeader" name="descriptionHeader" required>
@@ -75,7 +68,6 @@
                     <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="amountHeader">Amount Column</label>
                 <select id="amountHeader" name="amountHeader" required>
@@ -83,7 +75,6 @@
                     <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="dateHeader">Date Column</label>
                 <select id="dateHeader" name="dateHeader" required>
@@ -91,7 +82,6 @@
                     <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="categoryHeader">Category Column</label>
                 <select id="categoryHeader" name="categoryHeader" required>
@@ -99,11 +89,10 @@
                     <option th:each="header : ${headers}" th:value="${header}" th:text="${header}"></option>
                 </select>
             </div>
-
             <button type="submit">Confirm Import</button>
         </form>
     </div>
-    <a href="/view/expenses" class="blank-link">Powrót do listy</a>
+    <a href="/" class="blank-link">Powrót do listy</a>
 </div>
 </body>
 </html>

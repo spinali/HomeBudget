@@ -19,9 +19,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpenseRequest {
+    @NotBlank
     private String description;
+    @Positive
     private BigDecimal amount;
+    @NotNull
     private LocalDate date;
+    @NotNull
     private Long categoryId;
     @JsonCreator
     public ExpenseRequest(Long id, String description, BigDecimal amount, LocalDate date, Long categoryId) {

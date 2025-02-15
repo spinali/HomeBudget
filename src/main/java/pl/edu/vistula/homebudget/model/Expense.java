@@ -1,6 +1,7 @@
 package pl.edu.vistula.homebudget.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -21,7 +22,8 @@ public class Expense {
     private Long id;
     @NotBlank
     private String description;
-    @PositiveOrZero
+    @NotNull
+    @DecimalMin(value = "0.0")
     private BigDecimal amount;
     @NotNull
     private LocalDate date;

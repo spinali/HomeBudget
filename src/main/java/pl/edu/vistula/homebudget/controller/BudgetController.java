@@ -1,6 +1,7 @@
 package pl.edu.vistula.homebudget.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,8 @@ public class BudgetController {
     }
     @PutMapping
     @Operation(summary = "Update budget with id 1")
-    public ResponseEntity<BudgetResponse> updateBudget(@RequestBody BudgetRequest budgetRequest) {
+    public ResponseEntity<BudgetResponse> updateBudget(@Valid @RequestBody BudgetRequest budgetRequest) {
+        budgetRequest.setId(1L);
         BudgetResponse budgetResponse = budgetService.update(1L, budgetRequest);
         return ResponseEntity.status(HttpStatus.OK).body(budgetResponse);
     }

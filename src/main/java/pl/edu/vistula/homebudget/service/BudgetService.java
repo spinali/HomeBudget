@@ -32,7 +32,6 @@ public class BudgetService {
     public BudgetResponse update(Long id, BudgetRequest budgetRequest) {
         Budget budget = budgetRepository.findById(id).orElseThrow(RuntimeException::new);
         budgetRepository.save(budgetMapper.toBudget(budget, budgetRequest));
-        System.out.println("Aktualizowany budżet: " + budgetRequest);
         return budgetMapper.toBudgetResponse(budget);
     }
     public BudgetResponse find(Long id) {
