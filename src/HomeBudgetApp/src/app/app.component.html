@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Home Budget Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+  <h1 class="mb-4">Home Budget Dashboard</h1>
+
+  <!-- Sekcja budżetu -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Budżet: <span id="budget-amount">{{budget?.amount}}</span></h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBudgetModal">Edytuj budżet</button>
+  </div>
+
+  <!-- Sekcja kategorii -->
+  <div class="mb-5">
+    <h2>Kategorie</h2>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Dodaj kategorię</button>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Nazwa kategorii</th>
+        <th>Akcje</th>
+      </tr>
+      </thead>
+      <tbody id="categories-table">
+      <tr *ngFor="let category of categories">
+        <td>{{category.name}}</td>
+        <td>
+          <button (click)="onCategoryModalOpen(category)" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editCategoryModal">Edytuj</button>
+          <button (click)="onCategoryModalOpen(category)" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal">Usuń</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Sekcja wydatków -->
+  <div class="mb-5">
+    <h2>Wydatki</h2>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addExpenseModal">Dodaj wydatek</button>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Opis</th>
+        <th>Kwota</th>
+        <th>Data</th>
+        <th>Kategoria</th>
+        <th>Akcje</th>
+      </tr>
+      </thead>
+      <tbody id="expenses-table">
+      <tr *ngFor="let expense of expenses">
+        <td>{{expense.description}}</td>
+        <td>{{expense.amount}}</td>
+        <td>{{expense.date}}</td>
+        <td>{{expense.categoryName}}</td>
+        <td>
+          <button (click)="onExpenseModalOpen(expense)" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editExpenseModal">Edytuj</button>
+          <button (click)="onExpenseModalOpen(expense)" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteExpenseModal">Usuń</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal edycji budżetu -->
+<div class="modal fade" id="editBudgetModal" tabindex="-1" aria-labelledby="editBudgetModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBudgetModalLabel">Edytuj budżet</h5>
+        <button type="button" id="closeEditBudgetForm" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #editBudgetForm=ngForm (ngSubmit)="updateBudget(editBudgetForm)" id="editBudgetForm">
+          <div class="mb-3">
+            <label for="newBudget" class="form-label">Nowy budżet (PLN)</label>
+            <input type="hidden" ngModel="{{budget?.id}}" name="id">
+            <input type="number"  ngModel="{{budget?.amount}}" name="amount" min="0" class="form-control" id="newBudget" placeholder="Wprowadź nowy budżet" required>
+          </div>
+
+      <div class="modal-footer">
+        <button (click)="editBudgetForm.resetForm(budget)" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <button [disabled]="editBudgetForm.invalid" type="submit" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal dodawania kategorii -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCategoryModalLabel">Dodaj kategorię</h5>
+        <button type="button" id="closeAddCategoryForm" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #addCategoryForm=ngForm (ngSubmit)="addCategories(addCategoryForm)" id="addCategoryForm" >
+          <div class="mb-3">
+            <label for="name" class="form-label">Nazwa kategorii</label>
+            <input type="text" class="form-control" id="name" ngModel name="name" placeholder="Wpisz nazwę kategorii" required>
+          </div>
+
+      <div class="modal-footer">
+        <button (click)="addCategoryForm.resetForm()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <button [disabled]="addCategoryForm.invalid" type="submit" class="btn btn-primary">Dodaj kategorię</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal edycji kategorii -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCategoryModalLabel">Edytuj kategorię</h5>
+        <button type="button" id="closeEditCategoryForm" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #editCategoryForm=ngForm (ngSubmit)="updateCategory(editCategoryForm)" id="editCategoryForm">
+          <div class="mb-3">
+            <label for="name" class="form-label">Nowa nazwa kategorii</label>
+            <input type="hidden" ngModel="{{selectedCategory?.id}}" name="id" id="id">
+            <input type="text" class="form-control" ngModel="{{selectedCategory?.name}}" name="name"  placeholder="Wpisz nową nazwę" required>
+          </div>
+      <div class="modal-footer">
+        <button (click)="editCategoryForm.resetForm(selectedCategory)" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <button [disabled]="editCategoryForm.invalid" type="submit" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal usuniecia kategorii -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCategoryModalLabel">Usuń kategorię</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #deleteCategoryForm=ngForm (ngSubmit)="deleteCategory(deleteCategoryForm.value.id)" id="deleteCategoryForm">
+          <div class="mb-3">
+            <p>Czy napewno chcesz usunąc tą kategorię</p>
+            <input type="hidden" name="id" ngModel="{{selectedCategory?.id}}">
+         </div>
+          <div class="modal-footer">
+            <button type="button" id="closeDeleteCategoryForm" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+            <button type="submit" class="btn btn-primary">Usuń</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal dodawania wydatku -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addExpenseModalLabel">Dodaj wydatek</h5>
+        <button id="closeAddExpenseForm" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #addExpenseForm=ngForm (ngSubmit)="addExpense(addExpenseForm)" id="addExpenseForm">
+          <div class="mb-3">
+            <label for="expenseDescription" class="form-label">Opis</label>
+            <input type="text" name="description" ngModel class="form-control" id="expenseDescription" placeholder="Opis wydatku" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseAmount" class="form-label">Kwota</label>
+            <input type="number" name="amount" ngModel class="form-control" min="0.01" id="expenseAmount" placeholder="Kwota" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseDate" class="form-label">Data</label>
+            <input type="date" name="date" ngModel class="form-control" id="expenseDate" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseCategorySelect" class="form-label">Kategoria</label>
+            <select class="form-select" name="categoryId" ngModel id="expenseCategorySelect" required>
+              <option *ngFor="let category of categories" value="{{category.id}}">{{category.name}}</option>
+            </select>
+          </div>
+
+      <div class="modal-footer">
+        <button (click)="addExpenseForm.resetForm()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <button [disabled]="addExpenseForm.invalid" type="submit" class="btn btn-primary">Dodaj wydatek</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal edycji wydatku -->
+<div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editExpenseModalLabel">Edytuj wydatek</h5>
+        <button type="button" id="closeEditExpenseForm" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #editExpenseForm=ngForm (ngSubmit)="updateExpense(editExpenseForm)" id="editExpenseForm">
+          <div class="mb-3">
+            <input type="hidden" name="id" ngModel="{{selectedExpense?.id}}" required>
+            <label for="editExpenseDescription" class="form-label">Opis</label>
+            <input type="text" class="form-control" name="description" ngModel="{{selectedExpense?.description}}" id="editExpenseDescription" placeholder="Opis wydatku" required>
+          </div>
+          <div class="mb-3">
+            <label for="editExpenseAmount" class="form-label">Kwota</label>
+            <input type="number" name="amount" min="0.01" ngModel="{{selectedExpense?.amount}}" class="form-control" id="editExpenseAmount" placeholder="Kwota" required>
+          </div>
+          <div class="mb-3">
+            <label for="editExpenseDate" class="form-label">Data</label>
+            <input type="date" name="date" ngModel="{{selectedExpense?.date}}" class="form-control" id="editExpenseDate" required>
+          </div>
+          <div class="mb-3">
+            <label for="editExpenseCategorySelect" class="form-label">Kategoria</label>
+            <select name="categoryId" ngModel="{{selectedExpense?.categoryId}}" class="form-select" id="editExpenseCategorySelect" required>
+              <option [selected]="selectedExpense?.categoryId==category.id" *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+            </select>
+          </div>
+
+      <div class="modal-footer">
+        <button (click)="editExpenseForm.resetForm(selectedExpense)" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal usuniecia wydatku -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-labelledby="deleteExpenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteExpenseModalLabel">Usuń wydatek</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form #deleteExpenseForm=ngForm (ngSubmit)="deleteExpense(deleteExpenseForm.value.id)" id="deleteExpenseForm">
+          <div class="mb-3">
+            <p>Czy napewno chcesz usunąc ten wydatek</p>
+            <input type="hidden" name="id" ngModel="{{selectedExpense?.id}}">
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="closeDeleteExpenseForm" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+            <button type="submit" class="btn btn-primary">Usuń</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
