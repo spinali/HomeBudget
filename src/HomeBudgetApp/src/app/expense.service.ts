@@ -25,4 +25,12 @@ export class ExpenseService {
   public removeExpense(expenseId:number):Observable<void>{
     return this.http.delete<void>(`${this.url}/${expenseId}`);
   }
+  public uploadCsvFile(file: File): Observable<{ headers: string[] }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ headers: string[] }>(`${this.url}/upload`, formData);
+  }
+  public confirmImport(mapping: { descriptionHeader: string, amountHeader: string, dateHeader: string, categoryHeader: string }): Observable<any> {
+    return this.http.post<any>(`${this.url}/confirm-import`, mapping);
+  }
 }

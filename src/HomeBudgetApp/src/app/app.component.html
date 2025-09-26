@@ -9,6 +9,11 @@
 <div class="container mt-4">
   <h1 class="mb-4">Home Budget Dashboard</h1>
 
+  <!-- Przycisk otwierający modal importu CSV -->
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importCsvModal">
+    Import CSV
+  </button>
+
   <!-- Sekcja budżetu -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Budżet: <span id="budget-amount">{{budget?.amount}}</span></h2>
@@ -273,6 +278,59 @@
   </div>
 </div>
 
+
+
+<!-- Modal importu CSV -->
+<div class="modal fade" id="importCsvModal" tabindex="-1" aria-labelledby="importCsvModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form #importFileForm="ngForm" (ngSubmit)="uploadFile()" id="importFileForm" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="importCsvModalLabel">Importuj plik CSV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="csvFile" class="form-label">Wybierz plik CSV</label>
+            <input type="file" name="file" (change)="onFileSelected($event)" class="form-control" id="csvFile" required>
+          </div>
+          <!-- Sekcja mapowania nagłówków - wyświetlana, gdy headers jest ustawione -->
+          <div *ngIf="headers && headers.length" class="mb-3">
+            <h5>Mapowanie nagłówków</h5>
+            <div class="mb-2">
+              <label class="form-label">Opis:</label>
+              <select name="descriptionHeader" [(ngModel)]="mappingFields.descriptionHeader" class="form-select" required>
+                <option *ngFor="let header of headers" [value]="header">{{ header }}</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Kwota:</label>
+              <select name="amountHeader" [(ngModel)]="mappingFields.amountHeader" class="form-select" required>
+                <option *ngFor="let header of headers" [value]="header">{{ header }}</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Data:</label>
+              <select name="dateHeader" [(ngModel)]="mappingFields.dateHeader" class="form-select" required>
+                <option *ngFor="let header of headers" [value]="header">{{ header }}</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Kategoria:</label>
+              <select name="categoryHeader" [(ngModel)]="mappingFields.categoryHeader" class="form-select" required>
+                <option *ngFor="let header of headers" [value]="header">{{ header }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!selectedFile">Importuj</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
